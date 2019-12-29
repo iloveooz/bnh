@@ -1,0 +1,162 @@
+#pragma once
+#include <SFML/Graphics.hpp> 
+#include <string>
+
+class GameObject {
+	int spriteSize_;
+	std::string firstName_;
+	std::string secondName_;
+	sf::Image firstImage_;
+	sf::Image secondImage_;
+	sf::Texture firstTexture_;
+	sf::Texture secondTexture_;
+	sf::Sprite firstSprite_;
+	sf::Sprite secondSprite_;
+public:
+	GameObject(std::string name, int size);
+	void setSecondSprite();
+	sf::Sprite &getFirstSprite();
+	sf::Sprite &getSecondSprite();
+	void setPositionFirst(int x, int y);
+	void setPositionSecond(int x, int y);
+};
+
+#pragma once
+#include "GameField.h"
+#include "GameObject.h"
+
+class Entity :public GameObject {
+	size_t x_;
+	size_t y_;
+	bool isSelected_;
+	bool isBrainy_;
+public:
+	Entity(std::string name, GameField &gameField, size_t x, size_t y);
+	virtual bool isDangerous() const;
+	size_t getX();
+	size_t getY();
+	void move(GameField &gameField, size_t x, size_t y);
+	void setSelected(bool a);
+	bool isSelected();
+	bool isBrainy();
+	void setBrainy(bool a);
+};
+
+#pragma once
+#include "GameField.h"
+#include "GameObject.h"
+
+class FieldObject:public GameObject {
+	size_t x_;
+	size_t y_;
+public:
+	FieldObject(std::string name, GameField &gameField,size_t x, size_t y);
+	virtual bool isDangerous() const;
+	size_t getX();
+	size_t getY();
+	void move(GameField &gameField, size_t x, size_t y);
+};
+
+#pragma once
+#include "Entity.h"
+#include "FieldObject.h"
+#include "vector"
+#include <thread>         
+#include <chrono> 
+
+class GameField;
+
+class Beast :public Entity {
+public:
+	Beast(std::string name, GameField &gameField, size_t x, size_t y);
+	bool isDangerous() const;
+	void move(GameField &gameField, size_t x, size_t y);
+	bool step(GameField &gameField, int randDirection);
+	bool beastIsLive(GameField &gameField);
+	bool stalemate(GameField &gameField);
+};
+
+#pragma once
+#include "Entity.h"
+#include "vector"
+#include <thread>         
+#include <chrono> 
+
+class GameField;
+
+class Hunter :public Entity {
+public:
+	Hunter(std::string name, GameField &gameField, size_t x, size_t y);
+	bool isDangerous() const;
+	void move(GameField &gameField, size_t x, size_t y);
+	bool step(GameField &gameField, int randDirection);
+};
+
+#pragma once
+#include "FieldObject.h"
+#include "vector"
+
+class GameField;
+
+class Grass :public FieldObject {
+public:
+	Grass(std::string name, GameField &gameField, size_t x, size_t y);
+	bool isDangerous() const;
+	void move(GameField &gameField, size_t x, size_t y);
+};
+
+#pragma once
+#include "FieldObject.h"
+#include "vector"
+
+class GameField;
+
+class Trap:public FieldObject {
+public:
+	Trap(std::string name, GameField &gameField, size_t x, size_t y);
+	bool isDangerous() const;
+	void move(GameField &gameField, size_t x, size_t y);
+};
+
+#pragma once
+#include <random>
+#include <ctime>
+
+class MyGen {
+private:
+	std::mt19937 gen_;
+	std::uniform_int_distribution<> rand_;
+public:
+	MyGen(int a, int b);
+	int next();
+};
+
+#pragma once
+class Entity;
+class FieldObject;
+
+struct Cell {
+	FieldObject *field;
+	Entity *entity;
+		Cell();
+};
+
+#pragma once
+#include "Cell.h"
+#include "GameObject.h"
+#include <string>
+#include <SFML/Graphics.hpp>
+#include <vector>
+
+class Entity;
+class FieldObject;
+
+struct GameField {
+	std::vector<std::vector<Cell>> playingField_;
+	size_t size_;
+	int spriteSize_;
+		GameField(size_t size,int spriteSize);
+		size_t spriteSize();
+		size_t size();
+		void draw(sf::RenderWindow &window);
+};
